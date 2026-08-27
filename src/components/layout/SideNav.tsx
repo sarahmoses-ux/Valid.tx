@@ -20,7 +20,7 @@ export default function SideNav({ active, onVerifyWallet }: { active: NavKey; on
   const { address, isReadOnly, disconnect } = useWallet()
 
   return (
-    <aside className="w-64 h-screen fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant hidden md:flex flex-col py-6 px-5 z-50">
+    <aside className="w-64 h-screen fixed left-0 top-0 border-r border-outline-variant hidden md:flex flex-col py-6 px-5 z-50">
       <div className="mb-xl flex items-center gap-xs">
         <div className="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center shrink-0">
           <span className="material-symbols-outlined text-on-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>
