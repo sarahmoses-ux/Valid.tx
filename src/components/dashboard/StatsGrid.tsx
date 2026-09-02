@@ -6,6 +6,7 @@ function StatCardShell({ label, icon, verified = false, children }: { label: str
     <div className="glass-card rounded-xl p-5 flex flex-col justify-between min-h-[128px]">
       <div className="flex items-start justify-between gap-2 text-on-surface-variant">
         <span className="font-label-md text-[12px] uppercase tracking-wider">{label}</span>
+        <span className={`material-symbols-outlined text-[18px] shrink-0 ${verified ? 'text-secondary' : ''}`}>{icon}</span>
       </div>
       {children}
     </div>

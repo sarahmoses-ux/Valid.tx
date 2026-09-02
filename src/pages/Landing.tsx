@@ -6,6 +6,7 @@ import VerificationFlow from '../components/VerificationFlow'
 import ProcessSteps from '../components/ProcessSteps'
 import VerificationModal from '../components/verification/VerificationModal'
 import { useWallet } from '../context/WalletContext'
+import Footer from '../components/Footer'
 
 export default function Landing() {
   const { connect, viewAddress } = useWallet()
@@ -23,6 +24,8 @@ export default function Landing() {
         <VerificationFlow />
         <ProcessSteps />
       </main>
+
+      <Footer />
 
       {isVerifying && (
         <VerificationModal
