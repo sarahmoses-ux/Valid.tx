@@ -9,7 +9,7 @@ import { useWallet } from '../context/WalletContext'
 import Footer from '../components/Footer'
 
 export default function Landing() {
-  const { connect, viewAddress } = useWallet()
+  const { connect } = useWallet()
   const navigate = useNavigate()
   const [isVerifying, setIsVerifying] = useState(false)
 
@@ -29,11 +29,11 @@ export default function Landing() {
 
       {isVerifying && (
         <VerificationModal
+          onClose={() => setIsVerifying(false)}
           onComplete={async (result) => {
             if (result.mode === 'lookup') {
-              viewAddress(result.address)
               setIsVerifying(false)
-              navigate('/dashboard')
+              navigate(`/transactions?tx=${encodeURIComponent(result.hash)}`)
               return
             }
             try {
