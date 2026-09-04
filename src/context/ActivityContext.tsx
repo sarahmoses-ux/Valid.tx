@@ -301,7 +301,7 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
       const rawData = response.data?.data || response.data || [];
       const txArray = Array.isArray(rawData) ? rawData : [];
       const mappedTransactions = txArray.map((tx) =>
-        normalizeTransaction(tx, "ethereum-sepolia"),
+        normalizeTransaction(tx),
       );
 
       setTransactions(mappedTransactions);
