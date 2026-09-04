@@ -29,6 +29,7 @@ export default function Landing() {
 
       {isVerifying && (
         <VerificationModal
+          onClose={() => setIsVerifying(false)}
           onComplete={async (result) => {
             if (result.mode === 'lookup') {
               viewAddress(result.address)

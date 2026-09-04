@@ -6,7 +6,7 @@ export default function TopAppBar({ title }: { title: string }) {
   const { address, isReadOnly } = useWallet()
 
   return (
-    <header className="fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] z-40 bg-surface/30 backdrop-blur-md flex justify-between items-center h-16 px-4 sm:px-6 lg:px-8">
+    <header className="fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] z-20 bg-surface/30 backdrop-blur-md flex justify-between items-center h-16 px-4 sm:px-6 lg:px-8">
       <Link to="/dashboard" className="md:hidden flex items-center gap-2 text-on-surface font-semibold">
         <span className="material-symbols-outlined text-primary text-[22px]">verified</span>
         ValidTx

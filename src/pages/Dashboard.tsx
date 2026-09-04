@@ -1,8 +1,5 @@
 import AppShell from '../components/layout/AppShell'
 import StatsGrid from '../components/dashboard/StatsGrid'
-import VolumeChart from '../components/dashboard/VolumeChart'
-import ActivityDonut from '../components/dashboard/ActivityDonut'
-import NetworksTable from '../components/dashboard/NetworksTable'
 import ActivityInsights from '../components/dashboard/ActivityInsights'
 
 export default function Dashboard() {
@@ -25,14 +22,7 @@ export default function Dashboard() {
 
       <StatsGrid />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8 items-stretch">
-        <VolumeChart />
-        <ActivityDonut />
-      </div>
-
       <ActivityInsights />
-
-      <NetworksTable />
     </AppShell>
   )
 }

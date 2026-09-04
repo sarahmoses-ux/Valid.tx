@@ -6,8 +6,11 @@ import Landing from './pages/Landing'
 import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
 import VerifiedProfile from './pages/VerifiedProfile'
+import { useState } from 'react'
+import VerificationModal from './components/verification/VerificationModal'
 
-function App() {
+function App(activeNav: 'overview' | 'transactions' | 'profile') {
+  const [isVerifying, setIsVerifying] = useState(false)
   return (
     <WalletProvider>
       <ActivityProvider>
@@ -34,13 +37,19 @@ function App() {
             path="/profile"
             element={
               <RequireWallet>
-                <VerifiedProfile />
+                <VerifiedProfile active={activeNav} onVerifyWallet={() => setIsVerifying(true)} />
               </RequireWallet>
             }
           />
         </Routes>
       </BrowserRouter>
       </ActivityProvider>
+      {isVerifying && (
+              <VerificationModal
+                onComplete={() => setIsVerifying(false)}
+                onClose={() => setIsVerifying(false)}
+              />
+            )}
     </WalletProvider>
   )
 }
