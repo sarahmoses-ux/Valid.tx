@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
 
-export default function Hero() {
+export default function Hero({
+  onVerifyWallet,
+}: {
+  onVerifyWallet?: () => void;
+}) {
   return (
     <section className="w-full max-w-4xl text-center flex flex-col items-center gap-5 mb-16 sm:mb-20 relative">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 sm:w-96 h-72 sm:h-96 bg-primary/15 blur-[120px] rounded-full pointer-events-none" />
@@ -25,17 +29,18 @@ export default function Hero() {
       </p>
 
       <div className="flex flex-col sm:flex-row w-full sm:w-auto items-stretch sm:items-center gap-3 mt-4">
-        <Link to="/dashboard" className="btn-primary px-6 py-3 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2">
+        {/* <Link to="/dashboard" className="btn-primary px-6 py-3 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2"> */}
         <button
           type="button"
-          className="btn-primaryrounded-lg font-label-md text-label-md flex items-center justify-center gap-2"
+          onClick={onVerifyWallet}
+          className="btn-primary px-6 py-3 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2"
         >
           Verify a Wallet
           <span className="material-symbols-outlined text-[18px]">
             arrow_forward
           </span>
         </button>
-        </Link>
+        {/* </Link> */}
         <a
           href="#how-it-works"
           className="btn-secondary px-6 py-3 rounded-lg font-label-md text-label-md text-center"

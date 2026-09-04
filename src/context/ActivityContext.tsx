@@ -210,11 +210,13 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const baseURL = import.meta.env.VITE_BASE_URL;
+
   // Save or update transaction state in database
   const saveTxState = useCallback(async (payload: TxStatePayload) => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/txState/save",
+        `${baseURL}/api/txState/save`,
         payload,
       );
       return response.data;
@@ -228,7 +230,7 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
   const checkTxStatus = useCallback(async (txHash: string) => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/txState/${encodeURIComponent(txHash.trim().toLowerCase())}`,
+        `${baseURL}/api/txState/${encodeURIComponent(txHash.trim().toLowerCase())}`,
       );
       return response.data?.data;
     } catch (err) {
@@ -288,11 +290,11 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
       let response;
       try {
         response = await axios.get(
-          `http://localhost:3000/api/analytics/${address}`,
+          `${baseURL}/api/analytics/${address}`,
         );
       } catch {
         response = await axios.get(
-          `http://localhost:3000/api/analytics/${address}`,
+          `${baseURL}/api/analytics/${address}`,
         );
       }
 
@@ -319,7 +321,7 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
 
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/txState/${address.trim()}`,
+        `${baseURL}/api/txState/${address.trim()}`,
       );
 
       const rawData = response.data?.data || response.data || null;
@@ -524,7 +526,7 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
         // Call backend verification endpoint
         onStep?.(1, "Verifying transaction on Creditcoin network");
         const response = await axios.post(
-          "http://localhost:3000/api/verify/single",
+          `${baseURL}/api/verify/single`,
           {
             txHash: txHash.toLowerCase(),
             address: address,
@@ -625,7 +627,7 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
           `Verifying ${hashes.length} transaction${hashes.length > 1 ? "s" : ""} on Creditcoin network`,
         );
         const response = await axios.post(
-          "http://localhost:3000/api/verify/batch",
+          `${baseURL}/api/verify/batch`,
           {
             txHashes: hashes.map((h) => h.toLowerCase()),
             address: address,

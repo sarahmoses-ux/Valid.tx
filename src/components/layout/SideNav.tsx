@@ -1,38 +1,50 @@
-import { Link } from 'react-router-dom'
-import { useWallet } from '../../context/WalletContext'
-import { truncateAddress } from '../../lib/address'
+import { Link } from "react-router-dom";
+import { useWallet } from "../../context/WalletContext";
+import { truncateAddress } from "../../lib/address";
 
-export type NavKey = 'overview' | 'transactions' | 'profile'
+export type NavKey = "overview" | "transactions" | "profile";
 
 type NavItem = {
-  key: NavKey
-  label: string
-  icon: string
-  to: string
-}
+  key: NavKey;
+  label: string;
+  icon: string;
+  to: string;
+};
 
 const navItems: NavItem[] = [
-  { key: 'overview', label: 'Overview', icon: 'dashboard', to: '/dashboard' },
-  { key: 'transactions', label: 'Transactions', icon: 'receipt_long', to: '/transactions' },
-  { key: 'profile', label: 'Profile', icon: 'account_circle', to: '/profile' },
-]
+  { key: "overview", label: "Overview", icon: "dashboard", to: "/dashboard" },
+  {
+    key: "transactions",
+    label: "Transactions",
+    icon: "receipt_long",
+    to: "/transactions",
+  },
+  { key: "profile", label: "Profile", icon: "account_circle", to: "/profile" },
+];
 
-export default function SideNav({ active }: { active: NavKey}) {
-  const { address, isReadOnly, disconnect } = useWallet()
+export default function SideNav({ active }: { active: NavKey }) {
+  const { address, isReadOnly, disconnect } = useWallet();
 
   return (
     <aside className="w-64 h-screen fixed left-0 top-0 border-r border-outline-variant hidden md:flex flex-col py-6 px-5 z-20">
       <div className="mb-xl flex items-center gap-xs">
         <div className="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center shrink-0">
-          <span className="material-symbols-outlined text-on-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>
+          <span
+            className="material-symbols-outlined text-on-primary-container"
+            style={{ fontVariationSettings: "'FILL' 1" }}
+          >
             security
           </span>
         </div>
         <div>
-          <h1 className="font-headline-md text-headline-md font-bold text-on-surface leading-tight">ValidTx</h1>
-          <p className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-            Web3 Verification
-          </p>
+          <Link to="/">
+            <h1 className="font-headline-md text-headline-md font-bold text-on-surface leading-tight">
+              ValidChain
+            </h1>
+            <p className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
+              Web3 Verification
+            </p>
+          </Link>
         </div>
       </div>
 
@@ -44,7 +56,10 @@ export default function SideNav({ active }: { active: NavKey}) {
               to={item.to}
               className="flex items-center gap-md px-sm py-xs text-primary font-bold border-r-2 border-primary bg-primary/5 rounded-l-lg hover:bg-surface-container-high transition-colors active:scale-95 duration-150"
             >
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+              <span
+                className="material-symbols-outlined"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
                 {item.icon}
               </span>
               <span className="font-body-md text-body-md">{item.label}</span>
@@ -79,10 +94,15 @@ export default function SideNav({ active }: { active: NavKey}) {
           <span className="material-symbols-outlined text-[18px]">{address ? 'refresh' : 'wallet'}</span>
           {isReadOnly ? 'Scan another wallet' : address ? 'Re-scan Wallet' : 'Verify Wallet'}
         </button> */}
-        <button type="button" onClick={() => void disconnect()} className="w-full py-2 px-3 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-colors flex items-center justify-center gap-2 text-label-md">
-          <span className="material-symbols-outlined text-[18px]">logout</span>{isReadOnly ? 'Exit lookup' : 'Sign out'}
+        <button
+          type="button"
+          onClick={() => void disconnect()}
+          className="w-full py-2 px-3 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-colors flex items-center justify-center gap-2 text-label-md"
+        >
+          <span className="material-symbols-outlined text-[18px]">logout</span>
+          {isReadOnly ? "Exit lookup" : "Sign out"}
         </button>
       </div>
     </aside>
-  )
+  );
 }
