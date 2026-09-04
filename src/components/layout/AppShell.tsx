@@ -19,7 +19,7 @@ export default function AppShell({
   className,
   mainClassName,
 }: AppShellProps) {
-  // const [isVerifying, setIsVerifying] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(false)
 
   return (
     <div className={`min-h-screen ${className ?? ""}`}>
@@ -51,12 +51,12 @@ export default function AppShell({
           </Link>
         ))}
       </nav>
-      {/* {isVerifying && (
+      {isVerifying && (
         <VerificationModal
           onComplete={() => setIsVerifying(false)}
           onClose={() => setIsVerifying(false)}
         />
-      )} */}
+      )}
     </div>
   );
 }
