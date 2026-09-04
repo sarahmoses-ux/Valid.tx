@@ -1,272 +1,426 @@
-import { useEffect, useRef, useState } from 'react'
-import { useActivity } from '../../context/ActivityContext'
-
-type TxStatus = 'success' | 'failed'
-type VerificationState = 'verified' | 'pending' | 'unverified' | 'unavailable'
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useActivity,
+  type Transaction,
+  type VerificationState,
+} from "../../context/ActivityContext";
+import VerificationSuccessModal from "../verification/VerificationSuccessModal";
+import { useNavigate } from "react-router-dom";
 
 
 const checkboxClass =
-  'w-4 h-4 rounded border-outline-variant bg-surface-container text-primary focus:ring-primary focus:ring-offset-0 focus:ring-offset-transparent cursor-pointer'
+  "w-3.5 h-3.5 rounded border-outline-variant/40 text-primary focus:ring-primary-500 focus:ring-offset-0 focus:ring-offset-transparent cursor-pointer transition-all";
 
-function StatusBadge({ status }: { status: TxStatus }) {
-  if (status === 'success') {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-secondary-container/10 border border-secondary/20 text-secondary text-[11px] font-semibold tracking-wide uppercase">
-        <span className="w-1.5 h-1.5 rounded-full bg-secondary" /> Success
-      </span>
-    )
-  }
-  return (
-    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-error-container/10 border border-error/20 text-error text-[11px] font-semibold tracking-wide uppercase">
-      <span className="w-1.5 h-1.5 rounded-full bg-error" /> Failed
-    </span>
-  )
+function formatAddress(addr?: string) {
+  if (!addr) return "—";
+  if (addr.length <= 12) return addr;
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
-function VerificationBadge({ verification }: { verification: VerificationState }) {
+function formatTxHash(hash?: string) {
+  if (!hash) return "—";
+  if (hash.length <= 14) return hash;
+  return `${hash.slice(0, 7)}...${hash.slice(-5)}`;
+}
+
+function StatusBadge({ status }: { status: Transaction["status"] }) {
+  if (status === "success") {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary/10 border border-secondary/25 text-secondary text-[10px] font-semibold tracking-wider uppercase">
+        <span className="w-1 h-1 rounded-full bg-secondary" /> Success
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error/10 border border-error/25 text-error text-[10px] font-semibold tracking-wider uppercase">
+      <span className="w-1 h-1 rounded-full bg-error" /> Failed
+    </span>
+  );
+}
+
+function VerificationBadge({
+  verification,
+}: {
+  verification: VerificationState;
+}) {
   switch (verification) {
-    case 'verified':
+    case "verified":
       return (
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container border border-secondary/30 shadow-[0_0_10px_rgba(0,165,114,0.1)]">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary/10 border border-secondary/30 text-secondary shadow-[0_0_10px_rgba(22,128,92,0.12)]">
           <span
-            className="material-symbols-outlined text-secondary text-[18px]"
+            className="material-symbols-outlined text-secondary text-[13px]"
             style={{ fontVariationSettings: "'FILL' 1" }}
           >
             verified
           </span>
-          <span className="font-label-md text-label-md text-secondary">Attestcoin Verified</span>
+          <span className="text-[11px] font-semibold tracking-tight">
+            Verified
+          </span>
         </div>
-      )
-    case 'pending':
+      );
+    case "pending":
       return (
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-tertiary/30 bg-tertiary-container/10">
-          <span className="material-symbols-outlined text-tertiary text-[18px]">hourglass_empty</span>
-          <span className="font-label-md text-label-md text-tertiary">Verification Pending</span>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-tertiary/30 bg-tertiary/10 text-tertiary">
+          <span className="material-symbols-outlined text-[12px] animate-spin">
+            progress_activity
+          </span>
+          <span className="text-[11px] font-medium tracking-tight">
+            Pending
+          </span>
         </div>
-      )
-    case 'unverified':
+      );
+    case "unverified":
       return (
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-outline-variant text-on-surface-variant">
-          <span className="material-symbols-outlined text-[18px]">radio_button_unchecked</span>
-          <span className="font-label-md text-label-md">Not Verified</span>
+        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-outline-variant/30 text-on-surface-variant/70">
+          <span className="w-1.5 h-1.5 rounded-full bg-outline-variant/40" />
+          <span className="text-[11px] font-normal">Not Verified</span>
         </div>
-      )
-    case 'unavailable':
-      return <span className="text-on-surface-variant font-label-md text-label-md italic">Unavailable</span>
+      );
+    case "unavailable":
+      return (
+        <span className="text-on-surface-variant/40 text-[11px] italic">
+          Unavailable
+        </span>
+      );
   }
 }
 
 export default function TransactionsTable({
   onSelectionChange,
 }: {
-  onSelectionChange?: (hashes: string[]) => void
+  onSelectionChange?: (hashes: string[]) => void;
 }) {
-  const { transactions: activityRows } = useActivity()
-  const [selected, setSelected] = useState<Set<string>>(() => new Set())
-  const [query, setQuery] = useState('')
-  const [verificationFilter, setVerificationFilter] = useState<'all' | VerificationState>('all')
-  const [copiedHash, setCopiedHash] = useState<string | null>(null)
-  const headerCheckboxRef = useRef<HTMLInputElement>(null)
+  const { transactions, verifySingle, verifyAll } = useActivity();
+  const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  const [query, setQuery] = useState("");
+  const [verificationFilter, setVerificationFilter] = useState<
+    "all" | VerificationState
+  >("all");
+  const [copiedHash, setCopiedHash] = useState<string | null>(null);
+  const headerCheckboxRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [hashesToVerify, setHashesToVerify] = useState<string[]>([]);
+
+  const selectedHashes = useMemo(() => Array.from(selected), [selected]);
 
   useEffect(() => {
-    onSelectionChange?.([...selected])
-  }, [selected, onSelectionChange])
+    onSelectionChange?.(selectedHashes);
+  }, [selectedHashes, onSelectionChange]);
 
-  const filteredRows = activityRows.filter((row) => {
-    if (verificationFilter !== 'all' && row.verification !== verificationFilter) return false
-    if (!query.trim()) return true
-    const q = query.trim().toLowerCase()
+  const filteredRows = transactions.filter((row) => {
+    if (verificationFilter !== "all" && row.verification !== verificationFilter)
+      return false;
+    if (!query.trim()) return true;
+    const q = query.trim().toLowerCase();
     return (
-      row.hash.toLowerCase().includes(q) ||
-      row.from.toLowerCase().includes(q) ||
-      row.to.toLowerCase().includes(q) ||
-      row.network.toLowerCase().includes(q)
-    )
-  })
+      row.hash?.toLowerCase().includes(q) ||
+      row.from?.toLowerCase().includes(q) ||
+      row.to?.toLowerCase().includes(q) ||
+      row.network?.toLowerCase().includes(q) ||
+      row.type?.toLowerCase().includes(q)
+    );
+  });
 
   async function copyHash(hash: string) {
-    await navigator.clipboard.writeText(hash)
-    setCopiedHash(hash)
-    window.setTimeout(() => setCopiedHash(null), 1200)
+    await navigator.clipboard.writeText(hash);
+    setCopiedHash(hash);
+    window.setTimeout(() => setCopiedHash(null), 1200);
   }
 
-  const selectableVisible = filteredRows.filter((row) => row.selectable)
-  const allVisibleSelected = selectableVisible.length > 0 && selectableVisible.every((row) => selected.has(row.hash))
-  const someVisibleSelected = selectableVisible.some((row) => selected.has(row.hash))
+  const selectableVisible = filteredRows.filter((row) => row.selectable);
+  const allVisibleSelected =
+    selectableVisible.length > 0 &&
+    selectableVisible.every((row) => selected.has(row.hash));
+  const someVisibleSelected = selectableVisible.some((row) =>
+    selected.has(row.hash),
+  );
 
   useEffect(() => {
     if (headerCheckboxRef.current) {
-      headerCheckboxRef.current.indeterminate = !allVisibleSelected && someVisibleSelected
+      headerCheckboxRef.current.indeterminate =
+        !allVisibleSelected && someVisibleSelected;
     }
-  }, [allVisibleSelected, someVisibleSelected])
+  }, [allVisibleSelected, someVisibleSelected]);
 
   function toggleRow(hash: string) {
     setSelected((prev) => {
-      const next = new Set(prev)
-      if (next.has(hash)) next.delete(hash)
-      else next.add(hash)
-      return next
-    })
+      const next = new Set(prev);
+      if (next.has(hash)) next.delete(hash);
+      else next.add(hash);
+      return next;
+    });
   }
 
   function toggleAll() {
     setSelected((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (allVisibleSelected) {
-        selectableVisible.forEach((row) => next.delete(row.hash))
+        selectableVisible.forEach((row) => next.delete(row.hash));
       } else {
-        selectableVisible.forEach((row) => next.add(row.hash))
+        selectableVisible.forEach((row) => next.add(row.hash));
       }
-      return next
-    })
+      return next;
+    });
   }
 
+  const handleVerifySelected = () => {
+    if (selected.size === 0) return;
+    setHashesToVerify(Array.from(selected));
+    setShowSuccess(true);
+  };
+
+  // const handleVerifyAllEligible = () => {
+  //   if (eligibleHashes.length === 0) return
+  //   setHashesToVerify(eligibleHashes)
+  //   setShowSuccess(true)
+  // }
+
+  const handleVerificationComplete = () => {
+    if (hashesToVerify.length > 1) {
+      verifyAll(hashesToVerify);
+    } else {
+      verifySingle(hashesToVerify[0]);
+    }
+    setSelected((prev) => {
+      const next = new Set(prev);
+      hashesToVerify.forEach((h) => next.delete(h));
+      return next;
+    });
+  };
+
   return (
-    <div className="bg-surface-container-high/80 backdrop-blur-xl border border-outline-variant/50 rounded-xl flex flex-col overflow-hidden">
-      <div className="px-4 sm:px-6 py-4 border-b border-outline-variant/50 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-surface-container-highest/30">
-        <div className="flex items-center gap-sm">
-          <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-            {selected.size} Selected
-          </span>
+    <>
+      <div className="bg-surface/85 backdrop-blur-xl border border-outline-variant/25 rounded-xl flex flex-col shadow-sm">
+        {/* Table Controls Header */}
+        <div className="sticky top-16 z-20 px-4 py-3 border-b border-outline-variant/20 flex flex-col sm:flex-row gap-2.5 justify-between sm:items-center bg-surface-container-high/95 backdrop-blur-md rounded-t-xl shadow-xs">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={selected.size === 0}
+              onClick={handleVerifySelected}
+              className="flex items-center gap-xs px-sm py-[10px] bg-primary text-on-primary rounded-lg cursor-pointer hover:bg-primary-fixed-dim transition-colors font-label-md text-[12px] shadow-[0_0_20px_rgba(173,198,255,0.2)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-primary disabled:shadow-none"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                verified
+              </span>
+              Verify with Attestcoin
+              {selected.size > 0 ? ` (${selected.size})` : ""}
+            </button>
+            {selected.size > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelected(new Set())}
+                className="text-[11px] text-primary hover:underline font-medium"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-stretch sm:items-center">
+            <select
+              value={verificationFilter}
+              onChange={(event) =>
+                setVerificationFilter(
+                  event.target.value as typeof verificationFilter,
+                )
+              }
+              aria-label="Filter by verification status"
+              className="h-8 w-26 bg-surface-container/70 border border-outline-variant/30 rounded-lg py-0 px-2.5 text-on-surface text-[12px] focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer"
+            >
+              <option value="all">All states</option>
+              <option value="verified">Verified</option>
+              <option value="unverified">Not verified</option>
+              <option value="pending">Pending</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
+
+            <div className="relative w-full max-w-48 sm:w-60">
+              <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[15px] pointer-events-none">
+                search
+              </span>
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search hash, address, network..."
+                className="w-full h-8 bg-surface-container/70 border border-outline-variant/30 rounded-lg pl-8 pr-2.5 text-on-surface text-[12px] focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none placeholder:text-on-surface-variant/40"
+              />
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <select value={verificationFilter} onChange={(event) => setVerificationFilter(event.target.value as typeof verificationFilter)} aria-label="Filter by verification status" className="bg-surface-container border border-outline-variant rounded-md py-2 px-3 text-on-surface font-body-sm text-body-sm focus:border-primary focus:ring-primary">
-            <option value="all">All verification states</option><option value="verified">Verified</option><option value="unverified">Not verified</option><option value="pending">Pending</option><option value="unavailable">Unavailable</option>
-          </select>
-          <div className="relative w-full sm:w-64">
-          <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
-            search
+
+        {/* Table Content */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-outline-variant/20 bg-surface-container-lowest/60 text-on-surface-variant/80 select-none">
+                <th className="px-3.5 py-2.5 w-10 text-center">
+                  <input
+                    ref={headerCheckboxRef}
+                    type="checkbox"
+                    checked={allVisibleSelected}
+                    onChange={toggleAll}
+                    disabled={selectableVisible.length === 0}
+                    className={checkboxClass}
+                  />
+                </th>
+                <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap">
+                  Tx Hash
+                </th>
+                <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap">
+                  Verification
+                </th>
+                <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap">
+                  Network
+                </th>
+                <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap">
+                  Type
+                </th>
+                <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap">
+                  Date
+                </th>
+                <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant/15 text-[12px]">
+              {filteredRows.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-on-surface-variant/60 text-[13px]"
+                  >
+                    No transactions match your filter criteria.
+                  </td>
+                </tr>
+              )}
+              {filteredRows.map((row) => {
+                const isFailed = row.status === "failed";
+                const isSelected = selected.has(row.hash);
+                return (
+                  <tr
+                    key={row.hash}
+                    onClick={() => row.selectable && toggleRow(row.hash)}
+                    className={`transition-colors duration-100 group cursor-pointer ${
+                      isSelected
+                        ? "bg-primary/5 hover:bg-primary/10"
+                        : "hover:bg-surface-container/50"
+                    } ${isFailed ? "opacity-65" : ""}`}
+                  >
+                    <td
+                      className="px-3.5 py-2.5 text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleRow(row.hash)}
+                        disabled={!row.selectable}
+                        className={
+                          row.selectable
+                            ? checkboxClass
+                            : "w-3.5 h-3.5 rounded border-outline-variant/20 bg-surface-container/30 cursor-not-allowed opacity-30"
+                        }
+                      />
+                    </td>
+
+                    {/* Hash */}
+                    <td className="px-3 py-2.5">
+                      <div className="inline-flex items-center gap-1.5">
+                        <span
+                          className={`font-mono-data text-[12px] text-on-surface font-medium group-hover:text-primary transition-colors ${
+                            isFailed ? "line-through decoration-error/50" : ""
+                          }`}
+                          title={row.hash}
+                        >
+                          {formatTxHash(row.hash)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void copyHash(row.hash);
+                          }}
+                          aria-label={`Copy transaction hash ${row.hash}`}
+                          className="p-0.5 rounded text-on-surface-variant/40 hover:text-primary hover:bg-surface-container-highest/60 transition-all opacity-40 group-hover:opacity-100"
+                          title="Copy hash"
+                        >
+                          <span className="material-symbols-outlined text-[13px]">
+                            {copiedHash === row.hash ? "check" : "content_copy"}
+                          </span>
+                        </button>
+                      </div>
+                    </td>
+
+                    {/* Verification */}
+                    <td className="px-3 py-2.5 whitespace-nowrap">
+                      <VerificationBadge verification={row.verification} />
+                    </td>
+
+                    {/* Network */}
+                    <td className="px-3 py-2.5 whitespace-nowrap">
+                      <div className="inline-flex items-center gap-1.5 text-[12px] font-medium text-on-surface">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/70" />
+                        {row.network}
+                      </div>
+                    </td>
+
+                    {/* Type */}
+                    <td className="px-3 py-2.5 whitespace-nowrap">
+                      <span className="inline-block px-2 py-0.5 rounded bg-surface-container text-on-surface-variant text-[11px] font-medium tracking-wide">
+                        {row.type}
+                      </span>
+                    </td>
+
+                    {/* Date */}
+                    <td className="px-3 py-2.5 text-on-surface-variant/80 text-[11px] whitespace-nowrap">
+                      {row.date}
+                    </td>
+
+                    {/* Tx Status */}
+                    <td className="px-3 py-2.5 whitespace-nowrap">
+                      <StatusBadge status={row.status} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Table Footer */}
+        <div className="px-4 py-2.5 border-t border-outline-variant/20 flex flex-col sm:flex-row justify-between items-center gap-2 bg-surface-container-lowest/40 text-[11px] text-on-surface-variant rounded-b-xl">
+          <span>
+            Showing{" "}
+            <span className="font-semibold text-on-surface">
+              {filteredRows.length}
+            </span>{" "}
+            of{" "}
+            <span className="font-semibold text-on-surface">
+              {transactions.length}
+            </span>{" "}
+            transactions
           </span>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search hash, address..."
-            className="w-full bg-surface-container border border-outline-variant rounded-md py-xs pl-xl pr-sm text-on-surface font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none placeholder:text-on-surface-variant/50"
-          />
+          <div className="flex items-center gap-1.5 text-on-surface-variant/70">
+            <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+            <span>Real-time indexing enabled</span>
           </div>
         </div>
       </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-outline-variant/50 bg-surface-container-lowest/50">
-              <th className="px-md py-sm w-12">
-                <input
-                  ref={headerCheckboxRef}
-                  type="checkbox"
-                  checked={allVisibleSelected}
-                  onChange={toggleAll}
-                  disabled={selectableVisible.length === 0}
-                  className={checkboxClass}
-                />
-              </th>
-              <th className="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider whitespace-nowrap">
-                Tx Hash
-              </th>
-              <th className="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-                Network
-              </th>
-              <th className="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-                Type
-              </th>
-              <th className="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-                From / To
-              </th>
-              <th className="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider text-right">
-                Amount
-              </th>
-              <th className="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-                Date
-              </th>
-              <th className="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-                Tx Status
-              </th>
-              <th className="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-                Verification
-              </th>
-            </tr>
-          </thead>
-          <tbody className="font-body-sm text-body-sm divide-y divide-outline-variant/30">
-            {filteredRows.length === 0 && (
-              <tr>
-                <td colSpan={9} className="px-md py-lg text-center text-on-surface-variant font-body-sm text-body-sm">
-                  No transactions match your search.
-                </td>
-              </tr>
-            )}
-            {filteredRows.map((row) => {
-              const isFailed = row.status === 'failed'
-              return (
-                <tr
-                  key={row.hash}
-                  className={`hover:bg-surface-container-high/50 transition-colors group ${isFailed ? 'opacity-75' : ''}`}
-                >
-                  <td className="px-md py-md">
-                    <input
-                      type="checkbox"
-                      checked={selected.has(row.hash)}
-                      onChange={() => toggleRow(row.hash)}
-                      disabled={!row.selectable}
-                      className={row.selectable ? checkboxClass : 'w-4 h-4 rounded border-outline-variant/30 bg-surface-container/50 cursor-not-allowed'}
-                    />
-                  </td>
-                  <td className="px-md py-md">
-                    <div className="flex items-center gap-xs">
-                      <span
-                        className={`font-mono-data text-mono-data text-on-surface ${isFailed ? 'line-through decoration-error/50' : ''}`}
-                      >
-                        {row.hash}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => void copyHash(row.hash)}
-                        aria-label={`Copy transaction hash ${row.hash}`}
-                        className="opacity-60 group-hover:opacity-100 transition-opacity text-on-surface-variant hover:text-primary"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">{copiedHash === row.hash ? 'check' : 'content_copy'}</span>
-                      </button>
-                    </div>
-                  </td>
-                  <td className="px-md py-md text-on-surface-variant">{row.network}</td>
-                  <td className="px-md py-md text-on-surface-variant">{row.type}</td>
-                  <td className="px-md py-md">
-                    <div className="flex flex-col gap-1">
-                      <span className="font-mono-data text-mono-data text-on-surface-variant text-[12px]">
-                        {row.from}
-                      </span>
-                      <span className="material-symbols-outlined text-[14px] text-outline">arrow_downward</span>
-                      <span
-                        className={`font-mono-data text-mono-data text-[12px] ${isFailed ? 'text-on-surface-variant' : 'text-on-surface'}`}
-                      >
-                        {row.to}
-                      </span>
-                    </div>
-                  </td>
-                  <td
-                    className={`px-md py-md text-right font-mono-data text-mono-data ${isFailed ? 'text-on-surface-variant' : 'text-on-surface'}`}
-                  >
-                    {row.amount}
-                  </td>
-                  <td className="px-md py-md text-on-surface-variant whitespace-nowrap">{row.date}</td>
-                  <td className="px-md py-md">
-                    <StatusBadge status={row.status} />
-                  </td>
-                  <td className="px-md py-md">
-                    <VerificationBadge verification={row.verification} />
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="px-md py-sm border-t border-outline-variant/50 flex justify-between items-center bg-surface-container-lowest/30">
-        <span className="font-body-sm text-body-sm text-on-surface-variant">Showing {filteredRows.length} of {activityRows.length} discovered transactions</span>
-        <span className="font-label-md text-label-md text-on-surface-variant">Live pagination appears when an indexer is connected</span>
-      </div>
-    </div>
-  )
+      {showSuccess && (
+        <VerificationSuccessModal
+          hashes={hashesToVerify}
+          onVerificationComplete={handleVerificationComplete}
+          onClose={() => setShowSuccess(false)}
+          onUpdateProfile={() => {
+            setShowSuccess(false);
+            navigate("/profile");
+          }}
+        />
+      )}
+    </>
+  );
 }

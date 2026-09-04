@@ -2,6 +2,7 @@ import crypto from 'node:crypto'
 import express from 'express'
 import session from 'express-session'
 import { generateNonce, SiweMessage } from 'siwe'
+import cors from 'cors'
 
 declare module 'express-session' {
   interface SessionData {
@@ -17,6 +18,17 @@ const port = Number(process.env.AUTH_PORT ?? 3001)
 const isProduction = process.env.NODE_ENV === 'production'
 
 app.set('trust proxy', 1)
+
+// CORS configuration for wallet connection
+const corsOptions = {
+  origin: isProduction ? process.env.FRONTEND_URL || 'http://localhost:5173' : 'http://localhost:5173',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200,
+}
+
+app.use(cors(corsOptions))
 app.use(express.json({ limit: '16kb' }))
 app.use(session({
   name: 'validtx.sid',
@@ -65,4 +77,4 @@ app.post('/api/auth/logout', (req, res) => {
   })
 })
 
-app.listen(port, () => console.log(`ValidTx auth server listening on http://localhost:${port}`))
+app.listen(port, () => console.log(`ValidChain auth server listening on http://localhost:${port}`))
