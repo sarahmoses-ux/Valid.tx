@@ -80,7 +80,7 @@ function FooterItem({ link }: { link: FooterLink }) {
 
 export default function Footer() {
   return (
-    <footer className="relative z-10 bg-[#4d8eff] text-white border-t border-white/10">
+    <footer className="relative z-10 bg-[#010f27] text-white border-t border-white/10">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-12 sm:pt-14 pb-7">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-10 gap-y-12">
           {columns.map((column, columnIndex) => (
