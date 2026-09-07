@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import { useWallet } from "../../context/WalletContext";
-import { truncateAddress } from "../../lib/address";
+import { useAccount } from "wagmi";
 
 export type NavKey = "overview" | "transactions" | "profile";
 
@@ -23,7 +22,7 @@ const navItems: NavItem[] = [
 ];
 
 export default function SideNav({ active }: { active: NavKey }) {
-  const { address, isReadOnly, disconnect } = useWallet();
+  const { address } = useAccount();
 
   return (
     <aside className="w-64 h-screen fixed left-0 top-0 border-r border-outline-variant hidden md:flex flex-col py-6 px-5 z-20">
@@ -78,30 +77,7 @@ export default function SideNav({ active }: { active: NavKey }) {
       </nav>
 
       <div className="mt-auto pt-sm border-t border-outline-variant/50 flex flex-col gap-sm">
-        {address && (
-          <div className="flex items-center gap-xs px-xs">
-            <span className="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(78,222,163,0.6)] shrink-0" />
-            <span className="font-mono-data text-mono-data text-on-surface-variant truncate">
-              {truncateAddress(address, 3, 4)}
-            </span>
-          </div>
-        )}
-        {/* <button
-          type="button"
-          onClick={onVerifyWallet}
-          className="w-full py-xs px-sm bg-primary text-on-primary font-label-md text-label-md rounded-xl hover:bg-primary-fixed-dim transition-colors flex items-center justify-center gap-xs active:scale-95 duration-150"
-        >
-          <span className="material-symbols-outlined text-[18px]">{address ? 'refresh' : 'wallet'}</span>
-          {isReadOnly ? 'Scan another wallet' : address ? 'Re-scan Wallet' : 'Verify Wallet'}
-        </button> */}
-        <button
-          type="button"
-          onClick={() => void disconnect()}
-          className="w-full py-2 px-3 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-colors flex items-center justify-center gap-2 text-label-md"
-        >
-          <span className="material-symbols-outlined text-[18px]">logout</span>
-          {isReadOnly ? "Exit lookup" : "Sign out"}
-        </button>
+        {address && <w3m-account-button />}
       </div>
     </aside>
   );

@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useWallet } from "./WalletContext";
+import { useAccount } from "wagmi";
 import axios from "axios";
 
 export type VerificationState =
@@ -205,7 +205,7 @@ type ActivityValue = {
 const ActivityContext = createContext<ActivityValue | null>(null);
 
 export function ActivityProvider({ children }: { children: ReactNode }) {
-  const { address } = useWallet();
+  const { address } = useAccount();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

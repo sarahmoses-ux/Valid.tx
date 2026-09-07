@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { useWallet } from '../../context/WalletContext'
-import { truncateAddress } from '../../lib/address'
+import { useAccount } from 'wagmi'
 import { useActivity } from '../../context/ActivityContext'
 
 export default function ProfileHeader() {
-  const { address } = useWallet()
+  const { address } = useAccount()
   const { verifiedCount, verifiedVolume, verificationRate } = useActivity()
   const [copied, setCopied] = useState(false)
 
@@ -31,7 +30,7 @@ export default function ProfileHeader() {
         <h2 className="font-headline-lg text-headline-lg text-on-surface mb-base">Verified Profile</h2>
         <div className="flex items-center gap-sm">
           <span className="font-mono-data text-mono-data text-on-surface-variant tracking-wider">
-            {address ? truncateAddress(address, 9, 6) : '—'}
+            {address ? address : '—'}
           </span>
           <div className="flex items-center gap-xs px-xs py-[2px] bg-secondary/10 border border-secondary rounded font-label-md text-label-md text-secondary uppercase">
             <div className="w-1 h-1 rounded-full bg-secondary" />

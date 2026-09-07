@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { useWallet } from "../../context/WalletContext";
+import { useAccount } from "wagmi";
 
 export default function RequireWallet({ children }: { children: ReactNode }) {
-  const { address, isAuthenticating, authError, connect } = useWallet();
+  const { address, isConnecting } = useAccount();
 
-  if (isAuthenticating)
+  if (isConnecting)
     return (
       <div className="min-h-screen bg-background text-on-surface flex items-center justify-center">
         <div className="flex items-center gap-3 text-on-surface-variant">
@@ -37,22 +37,17 @@ export default function RequireWallet({ children }: { children: ReactNode }) {
           Sign a one-time message to access your ValidTx dashboard. This costs
           no gas and cannot move funds.
         </p>
-        {authError && (
+        {/* {authError && (
           <div
             role="alert"
             className="mb-4 p-3 rounded-lg border border-error/30 bg-error/10 text-error text-body-sm text-left"
           >
             {authError}
           </div>
-        )}
-        <button
-          type="button"
-          onClick={() => void connect().catch(() => undefined)}
-          className="w-full py-3 rounded-lg bg-primary text-on-primary font-semibold hover:bg-primary-fixed-dim transition-colors flex items-center justify-center gap-2"
-        >
-          <span className="material-symbols-outlined text-[20px]">wallet</span>
-          Connect and sign in
-        </button>
+        )} */}
+        <div className="w-full flex justify-center">
+        <w3m-button />
+        </div>
         <div className="mt-5 pt-5 border-t border-outline-variant/30 grid grid-cols-3 gap-2 text-[11px] text-on-surface-variant">
           <span>Single-use nonce</span>
           <span>HTTP-only session</span>

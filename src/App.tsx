@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { WalletProvider } from './context/WalletContext'
+import ContextProvider from './context/index'
 import { ActivityProvider } from './context/ActivityContext'
 import RequireWallet from './components/layout/RequireWallet'
 import Landing from './pages/Landing'
@@ -9,10 +9,12 @@ import VerifiedProfile from './pages/VerifiedProfile'
 import { useState } from 'react'
 import VerificationModal from './components/verification/VerificationModal'
 
-function App(activeNav: 'overview' | 'transactions' | 'profile') {
-  const [isVerifying, setIsVerifying] = useState(false)
+function App({ activeNav }: { activeNav: 'overview' | 'transactions' | 'profile' }) {
+  const [isVerifying, setIsVerifying] = useState(false);
+  const cookies = null;
+  
   return (
-    <WalletProvider>
+    <ContextProvider cookies={cookies}>
       <ActivityProvider>
       <BrowserRouter>
         <Routes>
@@ -37,7 +39,7 @@ function App(activeNav: 'overview' | 'transactions' | 'profile') {
             path="/profile"
             element={
               <RequireWallet>
-                <VerifiedProfile active={activeNav} onVerifyWallet={() => setIsVerifying(true)} />
+                <VerifiedProfile />
               </RequireWallet>
             }
           />
@@ -50,7 +52,7 @@ function App(activeNav: 'overview' | 'transactions' | 'profile') {
                 onClose={() => setIsVerifying(false)}
               />
             )}
-    </WalletProvider>
+    </ContextProvider>
   )
 }
 

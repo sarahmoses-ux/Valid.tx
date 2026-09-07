@@ -29,18 +29,16 @@ export default function Hero({
       </p>
 
       <div className="flex flex-col sm:flex-row w-full sm:w-auto items-stretch sm:items-center gap-3 mt-4">
-        {/* <Link to="/dashboard" className="btn-primary px-6 py-3 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2"> */}
         <button
           type="button"
           onClick={onVerifyWallet}
           className="btn-primary px-6 py-3 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2"
         >
-          Verify a Wallet
+          Verify a Transaction
           <span className="material-symbols-outlined text-[18px]">
             arrow_forward
           </span>
         </button>
-        {/* </Link> */}
         <a
           href="#how-it-works"
           className="btn-secondary px-6 py-3 rounded-lg font-label-md text-label-md text-center"

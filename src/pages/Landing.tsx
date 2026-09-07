@@ -5,11 +5,11 @@ import Hero from '../components/Hero'
 import VerificationFlow from '../components/VerificationFlow'
 import ProcessSteps from '../components/ProcessSteps'
 import VerificationModal from '../components/verification/VerificationModal'
-import { useWallet } from '../context/WalletContext'
+import { useAccount } from 'wagmi'
 import Footer from '../components/Footer'
 
 export default function Landing() {
-  const { connect, viewAddress } = useWallet()
+  const { address } = useAccount()
   const navigate = useNavigate()
   const [isVerifying, setIsVerifying] = useState(false)
 
@@ -32,13 +32,13 @@ export default function Landing() {
           onClose={() => setIsVerifying(false)}
           onComplete={async (result) => {
             if (result.mode === 'lookup') {
-              viewAddress(result.address)
+              address
               setIsVerifying(false)
               navigate('/dashboard')
               return
             }
             try {
-              await connect()
+              // await connect()
               setIsVerifying(false)
               navigate('/dashboard')
             } catch {

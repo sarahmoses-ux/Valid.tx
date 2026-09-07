@@ -1,5 +1,5 @@
 {
-  "name": "validtx",
+  "name": "validChain",
   "version": "0.0.0",
   "private": true,
   "description": "This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.",
@@ -25,6 +25,10 @@
   },
   "dependencies": {
     "@gluwa/usc-sdk": "^0.18.0",
+    "@reown/appkit": "^1.8.23",
+    "@reown/appkit-adapter-wagmi": "^1.8.23",
+    "@tanstack/react-query": "^5.102.8",
+    "@walletconnect/ethereum-provider": "^2.24.0",
     "axios": "^1.20.0",
     "cors": "^2.8.5",
     "ethers": "^6.17.0",
