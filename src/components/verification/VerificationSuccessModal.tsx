@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useActivity } from '../../context/ActivityContext'
-import { useWallet } from '../../context/WalletContext'
-import { truncateAddress } from '../../lib/address'
+import { useAccount } from 'wagmi'
 
 export type VerificationSuccessModalProps = {
   hashes: string[]
@@ -32,7 +31,7 @@ export default function VerificationSuccessModal({
   onVerificationComplete,
 }: VerificationSuccessModalProps) {
   const { verifySingle, verifyAll, transactions } = useActivity()
-  const { address } = useWallet()
+  const { address } = useAccount()
 
   const [status, setStatus] = useState<'verifying' | 'success' | 'failed'>('verifying')
   const [activeStep, setActiveStep] = useState(0)
@@ -290,7 +289,7 @@ export default function VerificationSuccessModal({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 sm:px-4">
                   <span className="text-on-surface-variant font-medium">Wallet</span>
                   <span className="font-mono-data text-on-surface">
-                    {truncateAddress(targetTx?.from || address || '0x0000000000000000000000000000000000000000', 6, 6)}
+                    {address || '__'}
                   </span>
                 </div>
 

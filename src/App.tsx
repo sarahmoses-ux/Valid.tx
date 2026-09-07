@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { WalletProvider } from './context/WalletContext'
+import ContextProvider from './context/index'
 import { ActivityProvider } from './context/ActivityContext'
 import RequireWallet from './components/layout/RequireWallet'
 import Landing from './pages/Landing'
@@ -9,7 +9,7 @@ import VerifiedProfile from './pages/VerifiedProfile'
 
 function App() {
   return (
-    <WalletProvider>
+    <ContextProvider cookies={cookies}>
       <ActivityProvider>
       <BrowserRouter>
         <Routes>

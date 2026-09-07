@@ -4,13 +4,12 @@ import ActivityLevelCard from "../components/profile/ActivityLevelCard";
 import MetricCard from "../components/profile/MetricCard";
 import RecentActivityTable from "../components/profile/RecentActivityTable";
 import { useActivity } from "../context/ActivityContext";
-import { useWallet } from "../context/WalletContext";
-import { truncateAddress } from "../lib/address";
+import { useAccount } from "wagmi";
 
 export default function VerifiedProfile() {
   const { profileStats, isLoading, error } = useActivity();
 
-  const { address, isReadOnly, disconnect } = useWallet();
+  const { address } = useAccount();
 
   if (isLoading) {
     return (

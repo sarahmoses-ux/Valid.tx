@@ -5,7 +5,7 @@ import Hero from '../components/Hero'
 import VerificationFlow from '../components/VerificationFlow'
 import ProcessSteps from '../components/ProcessSteps'
 import VerificationModal from '../components/verification/VerificationModal'
-import { useWallet } from '../context/WalletContext'
+import { useAccount } from 'wagmi'
 import Footer from '../components/Footer'
 
 export default function Landing() {
@@ -37,7 +37,7 @@ export default function Landing() {
               return
             }
             try {
-              await connect()
+              // await connect()
               setIsVerifying(false)
               navigate('/dashboard')
             } catch {
