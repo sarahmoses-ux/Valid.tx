@@ -6,13 +6,8 @@ import Landing from './pages/Landing'
 import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
 import VerifiedProfile from './pages/VerifiedProfile'
-import { useState } from 'react'
-import VerificationModal from './components/verification/VerificationModal'
 
-function App({ activeNav }: { activeNav: 'overview' | 'transactions' | 'profile' }) {
-  const [isVerifying, setIsVerifying] = useState(false);
-  const cookies = null;
-  
+function App() {
   return (
     <ContextProvider cookies={cookies}>
       <ActivityProvider>
@@ -46,13 +41,7 @@ function App({ activeNav }: { activeNav: 'overview' | 'transactions' | 'profile'
         </Routes>
       </BrowserRouter>
       </ActivityProvider>
-      {isVerifying && (
-              <VerificationModal
-                onComplete={() => setIsVerifying(false)}
-                onClose={() => setIsVerifying(false)}
-              />
-            )}
-    </ContextProvider>
+    </WalletProvider>
   )
 }
 

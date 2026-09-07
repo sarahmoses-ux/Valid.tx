@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { useActivity } from "../../context/ActivityContext";
-import MetricCard from "../profile/MetricCard";
 
 function StatCardShell({
   label,
@@ -18,6 +17,13 @@ function StatCardShell({
       <div className="flex items-start justify-between gap-2 text-on-surface-variant">
         <span className="font-label-md text-[12px] uppercase tracking-wider">
           {label}
+        </span>
+        <span
+          className={`material-symbols-outlined text-[18px] shrink-0 ${
+            verified ? "text-secondary" : ""
+          }`}
+        >
+          {icon}
         </span>
       </div>
       {children}

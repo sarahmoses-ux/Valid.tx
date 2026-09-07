@@ -2,12 +2,9 @@ import AppShell from "../components/layout/AppShell";
 import ProfileHeader from "../components/profile/ProfileHeader";
 import ActivityLevelCard from "../components/profile/ActivityLevelCard";
 import MetricCard from "../components/profile/MetricCard";
-import NetworksUsedCard from "../components/profile/NetworksUsedCard";
 import RecentActivityTable from "../components/profile/RecentActivityTable";
 import { useActivity } from "../context/ActivityContext";
 import { useAccount } from "wagmi";
-
-export type NavKey = "overview" | "transactions" | "profile";
 
 export default function VerifiedProfile() {
   const { profileStats, isLoading, error } = useActivity();
@@ -166,14 +163,40 @@ export default function VerifiedProfile() {
         </div>
         <RecentActivityTable />
 
-        {address && (
-          <div className="md:hidden mt-10 item-center pt-sm border-t border-outline-variant/50 flex gap-sm">
-            <h3 className="font-headline-sm text-on-surface font-extrabold">
-              Wallet Account
-            </h3>
-            <w3m-button />
-          </div>
-        )}
+        <div className="md:hidden mt-auto pt-sm border-t border-outline-variant/50 flex flex-col gap-sm">
+          {address && (
+            <div className="flex items-center gap-xs px-xs">
+              <span className="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(78,222,163,0.6)] shrink-0" />
+              <span className="font-mono-data text-mono-data text-on-surface-variant truncate">
+                {truncateAddress(address, 3, 4)}
+              </span>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => undefined}
+            className="w-full py-xs px-sm bg-primary text-on-primary font-label-md text-label-md rounded-xl hover:bg-primary-fixed-dim transition-colors flex items-center justify-center gap-xs active:scale-95 duration-150"
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              {address ? "refresh" : "wallet"}
+            </span>
+            {isReadOnly
+              ? "Scan another wallet"
+              : address
+                ? "Re-scan Wallet"
+                : "Verify Wallet"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void disconnect()}
+            className="w-full py-2 px-3 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-colors flex items-center justify-center gap-2 text-label-md"
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              logout
+            </span>
+            {isReadOnly ? "Exit lookup" : "Disconnect"}
+          </button>
+        </div>
       </div>
     </AppShell>
   );

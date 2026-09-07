@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 const checkboxClass =
   "w-3.5 h-3.5 rounded border-outline-variant/40 text-primary focus:ring-primary-500 focus:ring-offset-0 focus:ring-offset-transparent cursor-pointer transition-all";
 
-function formatAddress(addr?: string) {
+export function formatAddress(addr?: string) {
   if (!addr) return "—";
   if (addr.length <= 12) return addr;
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;

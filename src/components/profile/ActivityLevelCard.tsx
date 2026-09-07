@@ -153,7 +153,7 @@ function calculateActivityTier(
  * Generates a description using only real profile data.
  */
 function getActivityDescription(
-  tier: ActivityTier,
+  _tier: ActivityTier,
   verifiedTransactions: number,
   transactionsPerWeek: number,
   firstTransactionAt: string | null
