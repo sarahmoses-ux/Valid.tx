@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useAccount } from "wagmi";
 
 export default function TopAppBar({ title }: { title: string }) {
   return (

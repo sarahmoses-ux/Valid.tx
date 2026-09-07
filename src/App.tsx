@@ -8,8 +8,9 @@ import Transactions from './pages/Transactions'
 import VerifiedProfile from './pages/VerifiedProfile'
 
 function App() {
+  const cookie = null;
   return (
-    <ContextProvider cookies={cookies}>
+    <ContextProvider cookies={cookie}>
       <ActivityProvider>
       <BrowserRouter>
         <Routes>
@@ -41,7 +42,7 @@ function App() {
         </Routes>
       </BrowserRouter>
       </ActivityProvider>
-    </WalletProvider>
+    </ContextProvider>
   )
 }
 
