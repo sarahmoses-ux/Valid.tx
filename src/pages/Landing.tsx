@@ -9,7 +9,7 @@ import { useAccount } from 'wagmi'
 import Footer from '../components/Footer'
 
 export default function Landing() {
-  const { connect } = useWallet()
+  const { address } = useAccount()
   const navigate = useNavigate()
   const [isVerifying, setIsVerifying] = useState(false)
 
@@ -32,6 +32,7 @@ export default function Landing() {
           onClose={() => setIsVerifying(false)}
           onComplete={async (result) => {
             if (result.mode === 'lookup') {
+              address
               setIsVerifying(false)
               navigate(`/transactions?tx=${encodeURIComponent(result.hash)}`)
               return
