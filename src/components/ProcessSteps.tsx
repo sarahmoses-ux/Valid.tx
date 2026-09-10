@@ -32,7 +32,7 @@ const steps: Step[] = [
     description:
       'Establish a trusted on-chain profile. Use your verified status to access premium defi protocols, exclusive mints, and trusted networks.',
     icon: 'verified_user',
-    footerLabel: 'Profile Minted',
+    footerLabel: 'Profile tracked',
     accent: 'secondary',
   },
 ]
@@ -40,7 +40,7 @@ const steps: Step[] = [
 function StepCard({ step }: { step: Step }) {
   if (step.accent === 'primary') {
     return (
-      <div className="glass-panel rounded-xl p-lg flex flex-col h-full border-primary/30 glow-accent relative overflow-hidden">
+      <div className="glass-panel rounded-[20px] p-lg flex flex-col h-full border-primary/30 glow-accent relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full pointer-events-none" />
         <div className="w-12 h-12 rounded-lg bg-primary-container/20 flex items-center justify-center mb-6 border border-primary/50">
           <span className="font-headline-md text-headline-md text-primary">{step.number}</span>
@@ -59,7 +59,7 @@ function StepCard({ step }: { step: Step }) {
   const hoverBorderClass = step.accent === 'secondary' ? 'hover:border-secondary/50' : 'hover:border-primary/50'
 
   return (
-    <div className={`glass-panel rounded-xl p-lg flex flex-col h-full ${hoverBorderClass} transition-colors`}>
+    <div className={`glass-panel rounded-[20px] p-lg flex flex-col h-full ${hoverBorderClass} transition-colors`}>
       <div className="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center mb-6 border border-outline-variant">
         <span className={`font-headline-md text-headline-md ${accentTextClass}`}>{step.number}</span>
       </div>
