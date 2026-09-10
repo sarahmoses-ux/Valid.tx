@@ -28,6 +28,17 @@ html {
   scroll-behavior: smooth;
 }
 
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
 button, a, input {
   -webkit-tap-highlight-color: transparent;
 }
@@ -67,7 +78,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 .btn-secondary {
   background-color: transparent;
   border: 1px solid rgba(115, 123, 140, 0.35);
-  color: #35609e;
+  color: #8cadda;
   transition: all 0.2s ease;
 }
 .btn-secondary:hover {
